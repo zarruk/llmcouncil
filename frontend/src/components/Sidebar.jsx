@@ -6,6 +6,7 @@ export default function Sidebar({
   currentConversationId,
   onSelectConversation,
   onNewConversation,
+  onClearConversations,
 }) {
   return (
     <div className="sidebar">
@@ -13,6 +14,13 @@ export default function Sidebar({
         <h1>LLM Council</h1>
         <button className="new-conversation-btn" onClick={onNewConversation}>
           + New Conversation
+        </button>
+        <button
+          className="clear-conversations-btn"
+          onClick={onClearConversations}
+          title="Eliminar todas las conversaciones guardadas"
+        >
+          Borrar historial
         </button>
       </div>
 

@@ -79,6 +79,13 @@ async def get_conversation(conversation_id: str):
     return conversation
 
 
+@app.delete("/api/conversations")
+async def delete_all_conversations():
+    """Delete all stored conversations."""
+    storage.clear_conversations()
+    return {"status": "ok"}
+
+
 @app.post("/api/conversations/{conversation_id}/message")
 async def send_message(conversation_id: str, request: SendMessageRequest):
     """
@@ -150,6 +157,13 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
             # Stage 1: Collect responses
             yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
             stage1_results = await stage1_collect_responses(request.content)
+            
+            # Check if we got any responses
+            if not stage1_results:
+                error_msg = "Failed to get responses from council models. Please check your API key and model availability."
+                yield f"data: {json.dumps({'type': 'error', 'message': error_msg})}\n\n"
+                return
+
             yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
 
             # Stage 2: Collect rankings

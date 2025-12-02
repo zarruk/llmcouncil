@@ -107,6 +107,19 @@ def list_conversations() -> List[Dict[str, Any]]:
     return conversations
 
 
+def clear_conversations():
+    """Delete all conversation files."""
+    ensure_data_dir()
+
+    for filename in os.listdir(DATA_DIR):
+        if filename.endswith('.json'):
+            path = os.path.join(DATA_DIR, filename)
+            try:
+                os.remove(path)
+            except OSError:
+                pass
+
+
 def add_user_message(conversation_id: str, content: str):
     """
     Add a user message to a conversation.

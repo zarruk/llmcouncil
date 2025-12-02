@@ -1,26 +1,30 @@
 import { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
+import UserGate from './components/UserGate';
 import { api } from './api';
 import './App.css';
+
+const USER_DATA_WEBHOOK_URL =
+  'https://aztec.app.n8n.cloud/webhook/648b110b-cf19-4250-9497-38f71551b090';
 
 function App() {
   const [conversations, setConversations] = useState([]);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [userProfile, setUserProfile] = useState(null);
+  const [isSubmittingUserInfo, setIsSubmittingUserInfo] = useState(false);
 
-  // Load conversations on mount
   useEffect(() => {
+    if (!userProfile) return;
     loadConversations();
-  }, []);
+  }, [userProfile]);
 
-  // Load conversation details when selected
   useEffect(() => {
-    if (currentConversationId) {
-      loadConversation(currentConversationId);
-    }
-  }, [currentConversationId]);
+    if (!userProfile || !currentConversationId) return;
+    loadConversation(currentConversationId);
+  }, [currentConversationId, userProfile]);
 
   const loadConversations = async () => {
     try {
@@ -40,16 +44,67 @@ function App() {
     }
   };
 
+  const handleUserGateSubmit = async ({ name, countryCode, phoneNumber }) => {
+    setIsSubmittingUserInfo(true);
+    try {
+      const sanitizedNumber = phoneNumber.replace(/\D/g, '');
+      const fullNumber = `${countryCode}${sanitizedNumber}`;
+      const response = await fetch(USER_DATA_WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          countryCode,
+          phoneNumber: sanitizedNumber,
+          fullNumber,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.text().catch(() => '');
+        throw new Error(
+          `Webhook error ${response.status}: ${errorBody || 'sin contenido'}`
+        );
+      }
+
+      setUserProfile({ name, countryCode, phoneNumber: sanitizedNumber, fullNumber });
+    } catch (error) {
+      console.error('Failed to submit user info:', error);
+      alert('No se pudo enviar tus datos. Revisa tu conexión e inténtalo de nuevo.');
+    } finally {
+      setIsSubmittingUserInfo(false);
+    }
+  };
+
   const handleNewConversation = async () => {
     try {
       const newConv = await api.createConversation();
-      setConversations([
+      setConversations((prev) => [
         { id: newConv.id, created_at: newConv.created_at, message_count: 0 },
-        ...conversations,
+        ...prev,
       ]);
       setCurrentConversationId(newConv.id);
     } catch (error) {
       console.error('Failed to create conversation:', error);
+      alert(`Failed to create conversation. Error details: ${error.message}`);
+    }
+  };
+
+  const handleClearConversations = async () => {
+    if (!window.confirm('¿Seguro que quieres borrar todas las conversaciones?')) {
+      return;
+    }
+
+    try {
+      await api.clearConversations();
+      setConversations([]);
+      setCurrentConversation(null);
+      setCurrentConversationId(null);
+    } catch (error) {
+      console.error('Failed to clear conversations:', error);
+      alert('No se pudo borrar el historial. Intenta de nuevo.');
     }
   };
 
@@ -161,10 +216,29 @@ function App() {
             setIsLoading(false);
             break;
 
-          case 'error':
+          case 'error': {
             console.error('Stream error:', event.message);
             setIsLoading(false);
+            setCurrentConversation((prev) => {
+              if (!prev) return prev;
+              const messages = [...prev.messages];
+              const lastMsg = messages[messages.length - 1];
+              if (!lastMsg) return prev;
+              if (lastMsg.loading) {
+                lastMsg.loading.stage1 = false;
+                lastMsg.loading.stage2 = false;
+                lastMsg.loading.stage3 = false;
+              }
+              lastMsg.stage3 = {
+                model: 'error',
+                response:
+                  event.message ||
+                  'Ocurrió un error durante la consulta al backend.',
+              };
+              return { ...prev, messages };
+            });
             break;
+          }
 
           default:
             console.log('Unknown event type:', eventType);
@@ -181,6 +255,15 @@ function App() {
     }
   };
 
+  if (!userProfile) {
+    return (
+      <UserGate
+        onSubmit={handleUserGateSubmit}
+        isSubmitting={isSubmittingUserInfo}
+      />
+    );
+  }
+
   return (
     <div className="app">
       <Sidebar
@@ -188,6 +271,7 @@ function App() {
         currentConversationId={currentConversationId}
         onSelectConversation={handleSelectConversation}
         onNewConversation={handleNewConversation}
+        onClearConversations={handleClearConversations}
       />
       <ChatInterface
         conversation={currentConversation}

@@ -2,7 +2,7 @@
  * API client for the LLM Council backend.
  */
 
-const API_BASE = 'http://localhost:8001';
+const API_BASE = '';
 
 export const api = {
   /**
@@ -28,9 +28,23 @@ export const api = {
       body: JSON.stringify({}),
     });
     if (!response.ok) {
-      throw new Error('Failed to create conversation');
+      const errorBody = await response.text().catch(() => 'Unknown error');
+      console.error('API Error:', response.status, errorBody);
+      throw new Error(`Failed to create conversation: ${response.status} ${errorBody}`);
     }
     return response.json();
+  },
+
+  /**
+   * Clear all conversations.
+   */
+  async clearConversations() {
+    const response = await fetch(`${API_BASE}/api/conversations`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to clear conversations');
+    }
   },
 
   /**

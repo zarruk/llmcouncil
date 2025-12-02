@@ -1,0 +1,81 @@
+.user-gate {
+  background: #f4f5f8;
+  color: #111;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.user-gate-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 32px;
+  width: min(360px, 100%);
+  box-shadow: 0 20px 80px rgba(15, 23, 42, 0.15);
+  border: 1px solid #edf0f5;
+}
+
+.user-gate-card h2 {
+  margin-bottom: 8px;
+  font-size: 1.75rem;
+  color: #111;
+}
+
+.user-gate-subtitle {
+  font-size: 0.95rem;
+  margin-bottom: 24px;
+  line-height: 1.4;
+  color: #4c5667;
+}
+
+.user-gate-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.user-gate-form label {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.user-gate-form input,
+.user-gate-form select {
+  background: #f8fafc;
+  border: 1px solid #d3dae7;
+  border-radius: 12px;
+  color: #111;
+  padding: 12px 14px;
+  font-size: 1rem;
+}
+
+.user-gate-form input:disabled,
+.user-gate-form select:disabled {
+  opacity: 0.6;
+}
+
+.user-gate-form button {
+  margin-top: 8px;
+  padding: 14px 18px;
+  background: #1f2937;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 1rem;
+}
+
+.user-gate-form button:hover:not(:disabled) {
+  background: #111827;
+}
+
+.user-gate-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+

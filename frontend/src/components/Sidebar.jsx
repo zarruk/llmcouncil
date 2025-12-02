@@ -7,14 +7,27 @@ export default function Sidebar({
   onSelectConversation,
   onNewConversation,
   onClearConversations,
+  isOpen,
+  onClose,
 }) {
   return (
-    <div className="sidebar">
-      <div className="sidebar-header">
-        <h1>LLM Council</h1>
-        <button className="new-conversation-btn" onClick={onNewConversation}>
-          + New Conversation
-        </button>
+    <>
+      <div 
+        className={`sidebar-overlay ${isOpen ? 'active' : ''}`} 
+        onClick={onClose}
+      />
+      <div className={`sidebar ${isOpen ? 'active' : ''}`}>
+        <div className="sidebar-header">
+          <div className="sidebar-title-row">
+            <h1>LLM Council</h1>
+            <button className="close-sidebar-btn" onClick={onClose}>×</button>
+          </div>
+          <button className="new-conversation-btn" onClick={() => {
+            onNewConversation();
+            onClose(); // Close on mobile when clicking new
+          }}>
+            + New Conversation
+          </button>
         <button
           className="clear-conversations-btn"
           onClick={onClearConversations}
@@ -34,7 +47,10 @@ export default function Sidebar({
               className={`conversation-item ${
                 conv.id === currentConversationId ? 'active' : ''
               }`}
-              onClick={() => onSelectConversation(conv.id)}
+              onClick={() => {
+                onSelectConversation(conv.id);
+                onClose(); // Close sidebar on mobile when selecting
+              }}
             >
               <div className="conversation-title">
                 {conv.title || 'New Conversation'}

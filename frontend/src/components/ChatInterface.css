@@ -4,12 +4,49 @@
   flex-direction: column;
   height: 100vh;
   background: #ffffff;
+  position: relative;
+  width: 100%;
+}
+
+.mobile-menu-btn {
+  display: none;
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.chat-header-mobile {
+  display: none;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  height: 60px;
+  background: #fff;
+}
+
+.mobile-title {
+  margin-left: 48px; /* space for menu button */
+  font-weight: 600;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .messages-container {
   flex: 1;
   overflow-y: auto;
   padding: 24px;
+  /* Ensure smooth scrolling on mobile */
+  -webkit-overflow-scrolling: touch;
 }
 
 .empty-state {
@@ -20,6 +57,7 @@
   height: 100%;
   color: #666;
   text-align: center;
+  padding: 20px;
 }
 
 .empty-state h2 {
@@ -121,7 +159,7 @@
   line-height: 1.5;
   outline: none;
   resize: vertical;
-  min-height: 80px;
+  min-height: 50px; /* Slightly smaller min-height */
   max-height: 300px;
 }
 
@@ -148,6 +186,10 @@
   transition: background 0.2s;
   white-space: nowrap;
   align-self: flex-end;
+  /* Match input height roughly */
+  height: 52px; 
+  display: flex;
+  align-items: center;
 }
 
 .send-button:hover:not(:disabled) {
@@ -160,4 +202,45 @@
   cursor: not-allowed;
   background: #ccc;
   border-color: #ccc;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: block;
+  }
+
+  .chat-header-mobile {
+    display: flex;
+  }
+
+  .messages-container {
+    padding: 16px;
+  }
+  
+  .user-message .message-content {
+    max-width: 90%;
+    padding: 12px;
+  }
+
+  .input-form {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .message-input {
+    padding: 10px;
+    font-size: 16px; /* Prevent iOS zoom */
+  }
+
+  .send-button {
+    padding: 0 16px;
+    height: 46px; /* Match smaller input */
+    font-size: 14px;
+  }
+  
+  /* Hide absolute menu button when chat header is visible (when conversation exists) */
+  .chat-interface:has(.chat-header-mobile) > .mobile-menu-btn {
+    display: none;
+  }
 }

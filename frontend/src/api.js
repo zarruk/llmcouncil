@@ -2,9 +2,10 @@
  * API client for the LLM Council backend.
  */
 
-// In production, use the Railway backend URL
-// In development, use empty string (Vite proxy handles it)
-const API_BASE = import.meta.env.VITE_API_URL || 'https://llmcouncil-production.up.railway.app';
+// Force Railway URL in production
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? ''
+  : 'https://llmcouncil-production.up.railway.app';
 
 export const api = {
   /**

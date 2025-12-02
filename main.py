@@ -1,6 +1,7 @@
-def main():
-    print("Hello from llm-council!")
+"""Entry point for Railway/cloud deployment."""
 
+# Re-export the FastAPI app from backend.main
+from backend.main import app
 
-if __name__ == "__main__":
-    main()
+# This allows: uvicorn main:app
+__all__ = ["app"]
